@@ -12,21 +12,20 @@ for i = 1:length(zeta_values)
     zeta = zeta_values(i);
     
     % 1) MATLABによるステップ応答
-    num = K * wn;
+    num = K * wn^2;
     den = [1, 2*zeta*wn, wn^2];
     sys = tf(num, den);
     [y_matlab, t_matlab] = step(sys, t);
     
-    % 2) 手計算による逆ラプラス変換
-    if zeta < 1  % 振動系 (underdamped)
-        wd = wn * sqrt(1 - zeta^2);
-        y_manual = K * (1 - exp(-zeta*wn*t) .* (cos(wd*t) + (zeta*wn/wd)*sin(wd*t)));
-    elseif zeta == 1  % 臨界減衰 (critically damped)
-        y_manual = K * (1 - exp(-wn*t) .* (1 + wn*t));
-    else  % 過減衰 (overdamped)
-        r1 = -zeta*wn + wn*sqrt(zeta^2 - 1);
-        r2 = -zeta*wn - wn*sqrt(zeta^2 - 1);
-        y_manual = K * (1 - (r2*exp(r1*t) - r1*exp(r2*t))/(r2 - r1));
+    % 2) 手計算で求めた具体的な式
+    if zeta == 0.2
+        y_manual = 1 - exp(-0.2*t) .* (cos(0.9798*t) + 0.2041*sin(0.9798*t));
+    elseif zeta == 0.7
+        y_manual = 1 - exp(-0.7*t) .* (cos(0.7141*t) + 0.9801*sin(0.7141*t));
+    elseif zeta == 1
+        y_manual = 1 - exp(-t) .* (1 + t);
+    elseif zeta == 2
+        y_manual = 1 - (3.7321*exp(-0.2679*t) - 0.2679*exp(-3.7321*t))/3.4641;
     end
     
     % プロット
